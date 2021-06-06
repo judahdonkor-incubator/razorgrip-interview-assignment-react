@@ -5,8 +5,8 @@ import React, { useEffect, Dispatch, SetStateAction } from "react"
 export const UsersOnline = ({ users, blocked, recipient, setRecipient }: {
     users: User[]
     blocked: string[]
-    recipient?: number
-    setRecipient: Dispatch<SetStateAction<number | undefined>>
+    recipient?: string
+    setRecipient: Dispatch<SetStateAction<string | undefined>>
 }) => {
 
     return (
@@ -15,14 +15,14 @@ export const UsersOnline = ({ users, blocked, recipient, setRecipient }: {
             spacing={4}
             align="stretch"
         >
-            {users.map((user, idx) => (
+            {users.filter(({ sub }) => !blocked.includes(sub)).map(user => (
                 <Box
                     cursor='pointer'
                     key={user.sub}
                     p={4}
-                    _hover={{ bg: 'gray.50' }}
-                    bg={idx === recipient ? 'gray.100' : undefined}
-                    onClick={() => setRecipient(idx)}>
+                    _hover={{ bg: 'gray.400' }}
+                    bg={user.sub === recipient ? 'gray.400' : undefined}
+                    onClick={() => setRecipient(user.sub)}>
                     <UserCard
                         user={user} />
                 </Box>

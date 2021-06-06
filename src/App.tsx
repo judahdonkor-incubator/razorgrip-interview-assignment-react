@@ -19,6 +19,8 @@ import {
   IconButton,
   Icon,
   Input,
+  Heading,
+  Image,
 } from "@chakra-ui/react"
 import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import { Logo } from "./Logo"
@@ -40,34 +42,34 @@ export const App = () => {
       .then(({ data }) => setUser(data))
       .catch(err => alert(err)) // implement later
   }, [])
-  const [blockedUsers, setBlockedUsers] = useState<Parameters<typeof UsersOnline>[0]['blocked']>([])
+  const [blockedUsers, setBlockedUsers] = useState<Record<'recipientId' | 'senderId', string>[]>([])
   const [usersOnline, setUsersOnline] = useState<Parameters<typeof UsersOnline>[0]['users']>([])
   const [recipient, setRecipient] = useState<Parameters<typeof UsersOnline>[0]['recipient']>()
   const [newMessages, setNewMessages] = useState<Message[]>([])
   const [messages, setMessages] = useState<{ [key in User['sub']]: Message[] }>({})
   useEffect(() => {
     if (recipient === undefined) return
-    if (messages[usersOnline[recipient].sub]) {
+    if (messages[recipient]) {
       setMessages({
         ...messages, ...{
-          [usersOnline[recipient].sub]: [
-            ...messages[usersOnline[recipient].sub],
-            ...newMessages.filter(({ recipientId }) => usersOnline[recipient].sub === recipientId)]
+          [recipient]: [
+            ...messages[recipient],
+            ...newMessages.filter(({ recipientId }) => recipient === recipientId)]
         }
       })
-      setNewMessages(newMessages.filter(({ recipientId }) => usersOnline[recipient].sub !== recipientId))
+      setNewMessages(newMessages.filter(({ recipientId }) => recipient !== recipientId))
     }
     else
       axios
-        .get(`/api/chat/${usersOnline[recipient].sub}`)
+        .get(`/api/chat/${recipient}`)
         .then(res => {
           setMessages({
             ...messages, ...{
-              [usersOnline[recipient].sub]: res.data
+              [recipient]: res.data
             }
           })
           setNewMessages(newMessages
-            .filter(({ recipientId }) => usersOnline[recipient].sub !== recipientId))
+            .filter(({ recipientId }) => recipient !== recipientId))
         })
   }, [recipient])
   useWebSocket(`ws://localhost:8080?token=${user?.sub}`, {
@@ -81,18 +83,31 @@ export const App = () => {
           setUsersOnline(msg.data)
           break;
         case "user-blocked":
-          setBlockedUsers(arr => [...arr, msg.data])
+          if (blockedUsers.findIndex(({ recipientId, senderId }) => msg.data.recipientId === recipientId && msg.data.senderId === senderId) === -1)
+            setBlockedUsers(arr => [...arr, msg.data])
+          if (recipient !== undefined)
+            if (recipient === msg.data.recipientId)
+              setRecipient(undefined)
           break;
         case "user-unblocked":
-          setBlockedUsers(arr => [...arr.filter(sub => sub !== msg.data)])
+          setBlockedUsers(arr => [...arr.filter(({ recipientId, senderId }) => !(msg.data.recipientId === recipientId && msg.data.senderId === senderId))])
+          break;
+        case "user-online":
+          if (usersOnline.findIndex(({ sub }) => sub === msg.data.sub) === -1 && msg.data.sub !== user?.sub)
+            setUsersOnline([...usersOnline, msg.data])
+          break;
+        case "user-offline":
+          const idx = usersOnline.findIndex(({ sub }) => sub === msg.data)
+          if (idx !== -1)
+            setUsersOnline([...usersOnline.filter((_, i) => i !== idx)])
           break;
         case "new-message":
           if (recipient !== undefined) {
-            if ([msg.data.recipientId, msg.data.senderId].includes(usersOnline[recipient].sub))
+            if ([msg.data.recipientId, msg.data.senderId].includes(recipient))
               setMessages({
                 ...messages, ...{
-                  [usersOnline[recipient].sub]: [
-                    ...messages[usersOnline[recipient].sub],
+                  [recipient]: [
+                    ...messages[recipient],
                     msg.data]
                 }
               })
@@ -104,7 +119,7 @@ export const App = () => {
           break;
       }
     }
-  }, !!user)
+  }, !user)
   return (
     <ChakraProvider theme={theme}>
       {user && (
@@ -112,7 +127,7 @@ export const App = () => {
           <VStack
             align="stretch"
           >
-            <Flex>
+            <Flex bg='gray.400'>
               <Box p="4">
                 <UserCard user={user} />
               </Box>
@@ -123,7 +138,7 @@ export const App = () => {
             </Flex>
             <UsersOnline
               users={usersOnline}
-              blocked={blockedUsers}
+              blocked={blockedUsers.map(({ recipientId }) => recipientId)}
               recipient={recipient}
               setRecipient={setRecipient} />
           </VStack>
@@ -131,9 +146,9 @@ export const App = () => {
           <Flex flex="1" direction='column' >
             {recipient !== undefined ? (
               <>
-                <Flex>
+                <Flex bg='gray.400'>
                   <Box p="4">
-                    <UserCard user={usersOnline[recipient]} />
+                    <UserCard user={usersOnline.find(({ sub }) => sub === recipient)!} />
                   </Box>
                   <Spacer />
                   <Box p="4">
@@ -141,22 +156,29 @@ export const App = () => {
                       variant="outline"
                       aria-label='Block user'
                       onClick={() => (axios.request({
-                        method: blockedUsers.includes(usersOnline[recipient].sub) ? 'DELETE' : 'PATCH',
-                        url: `/api/user/blocked/${usersOnline[recipient].sub}`
+                        method: blockedUsers.map(({ senderId }) => senderId).includes(recipient) ? 'DELETE' : 'PATCH',
+                        url: `/api/user/blocked/${recipient}`
                       }))}>
-                      {blockedUsers.includes(usersOnline[recipient].sub) ? 'Unblock' : 'Block'}
+                      {blockedUsers.map(({ senderId }) => senderId).includes(recipient) ? 'Unblock' : 'Block'}
                     </Button>
                   </Box>
                 </Flex>
                 <Box flex="1" overflow='scroll'>
                   <Messages
-                    data={messages[usersOnline[recipient].sub]}
-                    recipient={usersOnline[recipient].sub} />
+                    data={messages[recipient]}
+                    recipient={recipient} />
                 </Box>
-                <Messenger recipient={usersOnline[recipient].sub} />
+                <Messenger recipient={recipient} />
               </>
             ) : (
-              <p>Empty</p>
+              <Center h="full">
+                <VStack>
+                  <Image src='https://static.wixstatic.com/media/629476_7855f7e6a96045ebbad4f3f993ee336f~mv2.png/v1/fill/w_220,h_60,al_c,q_85,usm_0.66_1.00_0.01/razorgrip-logo.webp' />
+                  <Heading>
+                    Live instant messaging pplication
+                  </Heading>
+                </VStack>
+              </Center>
             )}
           </Flex>
         </Flex>
