@@ -72,7 +72,8 @@ export const App = () => {
             .filter(({ recipientId }) => recipient !== recipientId))
         })
   }, [recipient])
-  useWebSocket(`ws://localhost:8080?token=${user?.sub}`, {
+  // fix hard-coded url later
+  useWebSocket(`wss://razorgrip-interview-assignment.herokuapp.com?token=${user?.sub}`, {
     onMessage: e => {
       const msg: Data = JSON.parse(e.data)
       switch (msg.message) {
