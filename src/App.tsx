@@ -119,7 +119,7 @@ export const App = () => {
           break;
       }
     }
-  }, !user)
+  }, !!user)
   return (
     <ChakraProvider theme={theme}>
       {user && (
@@ -172,7 +172,7 @@ export const App = () => {
               </>
             ) : (
               <Center h="full">
-                <VStack>
+                <VStack textAlign='center'>
                   <Image src='https://static.wixstatic.com/media/629476_7855f7e6a96045ebbad4f3f993ee336f~mv2.png/v1/fill/w_220,h_60,al_c,q_85,usm_0.66_1.00_0.01/razorgrip-logo.webp' />
                   <Heading>
                     Live instant messaging pplication
