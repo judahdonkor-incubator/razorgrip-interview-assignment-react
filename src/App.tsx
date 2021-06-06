@@ -58,7 +58,7 @@ export const App = () => {
             ...newMessages.filter(({ recipientId }) => recipient === recipientId)]
         }
       })
-      setNewMessages(newMessages.filter(({ recipientId }) => recipient !== recipientId))
+      setNewMessages(newMessages.filter(({ senderId }) => recipient !== senderId))
     }
     else
       axios
@@ -70,7 +70,7 @@ export const App = () => {
             }
           })
           setNewMessages(newMessages
-            .filter(({ recipientId }) => recipient !== recipientId))
+            .filter(({ senderId }) => recipient !== senderId))
         })
   }, [recipient])
   // fix hard-coded url later
@@ -119,7 +119,6 @@ export const App = () => {
               toast({
                 title: usersOnline.find(({ sub }) => msg.data.senderId === sub)?.name || msg.data.senderId,
                 description: msg.data.message,
-                variant: 'left-accent',
                 status: 'info',
                 isClosable: true,
               })
