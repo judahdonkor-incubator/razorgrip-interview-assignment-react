@@ -4256,6 +4256,11 @@ core-js-pure@^3.0.0:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.9.0.tgz#326cc74e1fef8b7443a6a793ddb0adfcd81f9efb"
   integrity sha512-3pEcmMZC9Cq0D4ZBh3pe2HLtqxpGNJBLXF/kZ2YzK17RbKp94w0HFbdbSx8H8kAlZG5k76hvLrkPm57Uyef+kg==
 
+core-js@3:
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.14.0.tgz#62322b98c71cc2018b027971a69419e2425c2a6c"
+  integrity sha512-3s+ed8er9ahK+zJpp9ZtuVcDoFzHNiZsPbNAAE4KXgrRHbjSqqNN6xGSXq6bq7TZIbKj4NLrLb6bJ5i+vSVjHA==
+
 core-js@^2.4.0:
   version "2.6.12"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
@@ -10008,6 +10013,13 @@ react-use-websocket@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-2.7.1.tgz#51e4798aa4e328595b86e63b9d667ae2114eed1b"
   integrity sha512-n0H429jQGaZAnn8BJljCcAgeSezXYzTLO0tb5QvdZnNjhAA8Br3A3GjU5ziNMlxant++Iv/IRQRNMKCfWnsHrQ==
+
+react-web-notification@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/react-web-notification/-/react-web-notification-0.8.0.tgz#2dd9108f0c05534abacc26934ee684d4e2ce26b6"
+  integrity sha512-c9oJEBHyI8P6ymA6lOdUKeOiLH3XkcsvV3nNfMK0D0aXh47sTxoGZLQnw/qO32bm5CmS7k66FSwvQXnTaBoJ3g==
+  dependencies:
+    core-js "3"
 
 react@^17.0.2:
   version "17.0.2"

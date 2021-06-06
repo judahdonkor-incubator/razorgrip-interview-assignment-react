@@ -20,6 +20,7 @@
     "react-icons": "^3.0.0",
     "react-scripts": "4.0.3",
     "react-use-websocket": "^2.7.1",
+    "react-web-notification": "^0.8.0",
     "typescript": "^3.9.5",
     "web-vitals": "^0.2.2"
   },
