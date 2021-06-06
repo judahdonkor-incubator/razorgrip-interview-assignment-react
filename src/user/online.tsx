@@ -2,11 +2,12 @@ import { Box, StackDivider, VStack } from "@chakra-ui/layout"
 import { User, UserCard } from '.'
 import React, { useEffect, Dispatch, SetStateAction } from "react"
 
-export const UsersOnline = ({ users, blocked, recipient, setRecipient }: {
+export const UsersOnline = ({ users, blocked, recipient, setRecipient, usersWithNewMessages = [] }: {
     users: User[]
     blocked: string[]
     recipient?: string
     setRecipient: Dispatch<SetStateAction<string | undefined>>
+    usersWithNewMessages?: string[]
 }) => {
 
     return (
@@ -24,7 +25,8 @@ export const UsersOnline = ({ users, blocked, recipient, setRecipient }: {
                     bg={user.sub === recipient ? 'gray.400' : undefined}
                     onClick={() => setRecipient(user.sub)}>
                     <UserCard
-                        user={user} />
+                        user={user}
+                        hasBadge={usersWithNewMessages.includes(user.sub)} />
                 </Box>
             ))}
         </VStack>

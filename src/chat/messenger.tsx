@@ -5,18 +5,24 @@ import { Box, Flex, HStack } from "@chakra-ui/layout"
 import { useState } from "react"
 import axios from 'axios'
 import { Message } from '.'
+import { Progress } from "@chakra-ui/progress"
 
 export const Messenger = ({ recipient }: { recipient: Message['recipientId'] }) => {
     const [message, setMessage] = useState('')
+    const [showProgress, setShowProgress] = useState(false)
     return (
         <form onSubmit={e => {
             e.preventDefault()
             if (!message) return
+            setShowProgress(true)
             axios.post('/api/chat/message', ({
                 recipientId: recipient,
                 message
-            } as Message)).then(rsp => setMessage(''))
+            } as Message))
+                .then(rsp => setMessage(''))
+                .finally(() => setShowProgress(false))
         }}>
+            {showProgress && <Progress size="xs" isIndeterminate />}
             <HStack py={2} px={4} spacing={2}>
                 <Input
                     flex="1"

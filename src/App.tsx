@@ -21,6 +21,7 @@ import {
   Input,
   Heading,
   Image,
+  useToast,
 } from "@chakra-ui/react"
 import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import { Logo } from "./Logo"
@@ -73,6 +74,7 @@ export const App = () => {
         })
   }, [recipient])
   // fix hard-coded url later
+  const toast = useToast()
   useWebSocket(`wss://razorgrip-interview-assignment.herokuapp.com?token=${user?.sub}`, {
     onMessage: e => {
       const msg: Data = JSON.parse(e.data)
@@ -112,8 +114,17 @@ export const App = () => {
                     msg.data]
                 }
               })
-          } else
+          } else {
+            if (msg.data.recipientId === user?.sub)
+              toast({
+                title: usersOnline.find(({ sub }) => msg.data.senderId === sub)?.name || msg.data.senderId,
+                description: msg.data.message,
+                variant: 'left-accent',
+                status: 'info',
+                isClosable: true,
+              })
             setNewMessages(arr => [...arr, msg.data])
+          }
           break;
 
         default:
@@ -141,7 +152,8 @@ export const App = () => {
               users={usersOnline}
               blocked={blockedUsers.map(({ recipientId }) => recipientId)}
               recipient={recipient}
-              setRecipient={setRecipient} />
+              setRecipient={setRecipient}
+              usersWithNewMessages={newMessages.map(({ senderId }) => senderId)} />
           </VStack>
           <Divider orientation="vertical" borderColor="gray.200" h='100vh' />
           <Flex flex="1" direction='column' >
