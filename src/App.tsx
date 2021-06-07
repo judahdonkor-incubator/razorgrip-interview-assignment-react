@@ -158,7 +158,7 @@ export const App = () => {
             </VStack>
             <Divider orientation="vertical" borderColor="gray.200" h='100vh' />
             <Flex flex="1" direction='column' >
-              {recipient !== undefined ? (
+              {(recipient !== undefined && usersOnline.find(({ sub }) => sub === recipient)) ? (
                 <>
                   <Flex bg='gray.400'>
                     <Box p="4">
